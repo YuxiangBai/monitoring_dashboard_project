@@ -1,0 +1,34 @@
+{
+  "name": "comprehensive-monitoring-dashboard",
+  "version": "1.0.0",
+  "description": "Real-time monitoring dashboard for master and worker nodes with health metrics and orderbook data",
+  "main": "src/dashboard-server.js",
+  "scripts": {
+    "start": "node src/dashboard-server.js",
+    "monitor": "node src/comprehensive-monitor.js",
+    "dev": "nodemon src/dashboard-server.js",
+    "setup": "npm install && echo 'Setup complete! Run npm start to begin.'",
+    "clean": "rm -rf node_modules package-lock.json && npm install"
+  },
+  "keywords": [
+    "monitoring",
+    "dashboard",
+    "redis",
+    "websocket",
+    "real-time",
+    "health-metrics",
+    "orderbook"
+  ],
+  "author": "Comprehensive Monitor",
+  "license": "MIT",
+  "dependencies": {
+    "redis": "^4.6.8",
+    "ws": "^8.14.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

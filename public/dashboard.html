@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprehensive Monitoring Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 20px 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .status-bar {
+            background: #34495e;
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 5px 0;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #27ae60;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .main-content {
+            padding: 30px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .section {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        .section-header {
+            background: #f8f9fa;
+            padding: 20px;
+            border-bottom: 3px solid #3498db;
+        }
+
+        .section-title {
+            font-size: 1.5em;
+            font-weight: 600;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-content {
+            padding: 20px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .node-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 5px solid #3498db;
+            transition: transform 0.2s ease;
+        }
+
+        .node-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .node-card.master {
+            border-left-color: #e74c3c;
+            background: linear-gradient(135deg, #fff5f5 0%, #f8f9fa 100%);
+        }
+
+        .node-card.worker {
+            border-left-color: #27ae60;
+            background: linear-gradient(135deg, #f0fff4 0%, #f8f9fa 100%);
+        }
+
+        .node-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .node-id {
+            font-weight: 600;
+            font-size: 1.1em;
+            color: #2c3e50;
+        }
+
+        .node-type {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .node-type.master {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .node-type.worker {
+            background: #27ae60;
+            color: white;
+        }
+
+        .health-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .health-indicator {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+        }
+
+        .health-indicator.healthy {
+            background: #27ae60;
+            box-shadow: 0 0 10px rgba(39, 174, 96, 0.5);
+        }
+
+        .health-indicator.unhealthy {
+            background: #e74c3c;
+            box-shadow: 0 0 10px rgba(231, 76, 60, 0.5);
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .metric {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .metric-label {
+            font-size: 0.9em;
+            color: #6c757d;
+            margin-bottom: 5px;
+        }
+
+        .metric-value {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .orderbook-section {
+            grid-column: 1 / -1;
+        }
+
+        .market-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #dee2e6;
+        }
+
+        .market-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .market-id {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 1.2em;
+        }
+
+        .market-age {
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+
+        .orderbook-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .market-orderbook {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            border: 1px solid #dee2e6;
+        }
+
+        .market-title {
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .best-prices {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+
+        .price-levels {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .price-level {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #f1f3f4;
+        }
+
+        .price-level:last-child {
+            border-bottom: none;
+        }
+
+        .asks .price-level {
+            color: #e74c3c;
+        }
+
+        .bids .price-level {
+            color: #27ae60;
+        }
+
+        .spread {
+            text-align: center;
+            padding: 10px;
+            background: #fff3cd;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-weight: 600;
+        }
+
+        .summary-section {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .summary-section .section-header {
+            background: rgba(255, 255, 255, 0.1);
+            border-bottom-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .summary-section .section-title {
+            color: white;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .summary-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .summary-number {
+            font-size: 2.5em;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .summary-label {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .no-data {
+            text-align: center;
+            color: #6c757d;
+            padding: 40px;
+            font-style: italic;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border: 1px solid #f5c6cb;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                padding: 20px;
+            }
+            
+            .status-bar {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .orderbook-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Comprehensive Monitoring Dashboard</h1>
+            <div class="subtitle">Real-time Health Status & Orderbook Monitoring</div>
+        </div>
+
+        <div class="status-bar">
+            <div class="status-item">
+                <div class="status-indicator" id="connectionStatus"></div>
+                <span id="connectionText">Connecting...</span>
+            </div>
+            <div class="status-item">
+                <span>⏰ Current Time: <span id="currentTime"></span></span>
+            </div>
+            <div class="status-item">
+                <span>📡 Last Update: <span id="lastUpdate">Never</span></span>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <!-- Health Status Section -->
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-title">
+                        💓 Node Health Status
+                    </div>
+                </div>
+                <div class="section-content" id="healthContent">
+                    <div class="no-data">⚠️ No health data received yet...</div>
+                </div>
+            </div>
+
+            <!-- System Summary Section -->
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-title">
+                        📊 System Summary
+                    </div>
+                </div>
+                <div class="section-content" id="summaryContent">
+                    <div class="summary-grid">
+                        <div class="summary-card">
+                            <div class="summary-number" id="totalNodes">0</div>
+                            <div class="summary-label">Total Nodes</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-number" id="healthyNodes">0</div>
+                            <div class="summary-label">Healthy Nodes</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-number" id="activeMarkets">0</div>
+                            <div class="summary-label">Active Markets</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-number" id="totalMarkets">N/A</div>
+                            <div class="summary-label">Total Markets</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Orderbook Status Section -->
+            <div class="section orderbook-section">
+                <div class="section-header">
+                    <div class="section-title">
+                        📊 Orderbook Status by Node
+                    </div>
+                </div>
+                <div class="section-content" id="orderbookContent">
+                    <div class="no-data">⚠️ No orderbook data received yet...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class MonitoringDashboard {
+            constructor() {
+                this.ws = null;
+                this.healthData = new Map();
+                this.orderbooksByNode = new Map();
+                this.totalMarkets = 0;
+                this.lastUpdateTime = null;
+                this.reconnectAttempts = 0;
+                this.maxReconnectAttempts = 5;
+                
+                this.initializeWebSocket();
+                this.startTimeUpdates();
+            }
+
+            initializeWebSocket() {
+                try {
+                    // Connect to WebSocket server (you'll need to implement this server)
+                    this.ws = new WebSocket('ws://localhost:8080');
+                    
+                    this.ws.onopen = () => {
+                        console.log('✅ Connected to monitoring server');
+                        this.updateConnectionStatus(true);
+                        this.reconnectAttempts = 0;
+                    };
+
+                    this.ws.onmessage = (event) => {
+                        try {
+                            const data = JSON.parse(event.data);
+                            this.handleMessage(data);
+                        } catch (error) {
+                            console.error('Error parsing message:', error);
+                        }
+                    };
+
+                    this.ws.onclose = () => {
+                        console.log('❌ Connection closed');
+                        this.updateConnectionStatus(false);
+                        this.attemptReconnection();
+                    };
+
+                    this.ws.onerror = (error) => {
+                        console.error('WebSocket error:', error);
+                        this.updateConnectionStatus(false);
+                    };
+
+                } catch (error) {
+                    console.error('Failed to initialize WebSocket:', error);
+                    this.updateConnectionStatus(false);
+                    this.simulateData(); // For demonstration purposes
+                }
+            }
+
+            attemptReconnection() {
+                if (this.reconnectAttempts < this.maxReconnectAttempts) {
+                    this.reconnectAttempts++;
+                    console.log(`Attempting to reconnect... (${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
+                    setTimeout(() => {
+                        this.initializeWebSocket();
+                    }, 3000 * this.reconnectAttempts);
+                } else {
+                    console.log('Max reconnection attempts reached. Switching to demo mode.');
+                    this.simulateData();
+                }
+            }
+
+            handleMessage(data) {
+                switch (data.type) {
+                    case 'health_update':
+                        this.handleHealthUpdate(data);
+                        break;
+                    case 'orderbook_update':
+                        this.handleOrderbookUpdate(data);
+                        break;
+                    case 'market_discovery':
+                        this.totalMarkets = data.totalMarkets;
+                        break;
+                    default:
+                        console.log('Unknown message type:', data.type);
+                }
+                
+                this.lastUpdateTime = new Date();
+                this.updateDisplay();
+            }
+
+            handleHealthUpdate(data) {
+                this.healthData.set(data.nodeId, {
+                    ...data.health,
+                    lastUpdate: new Date()
+                });
+            }
+
+            handleOrderbookUpdate(data) {
+                const { eventId, nodeId } = data;
+                
+                if (!this.orderbooksByNode.has(nodeId)) {
+                    this.orderbooksByNode.set(nodeId, new Map());
+                }
+                
+                this.orderbooksByNode.get(nodeId).set(eventId, {
+                    ...data,
+                    lastUpdate: new Date()
+                });
+            }
+
+            updateConnectionStatus(connected) {
+                const indicator = document.getElementById('connectionStatus');
+                const text = document.getElementById('connectionText');
+                
+                if (connected) {
+                    indicator.style.background = '#27ae60';
+                    text.textContent = 'Connected to Monitor';
+                } else {
+                    indicator.style.background = '#e74c3c';
+                    text.textContent = 'Disconnected';
+                }
+            }
+
+            startTimeUpdates() {
+                setInterval(() => {
+                    document.getElementById('currentTime').textContent = new Date().toLocaleTimeString();
+                    
+                    if (this.lastUpdateTime) {
+                        document.getElementById('lastUpdate').textContent = this.lastUpdateTime.toLocaleTimeString();
+                    }
+                }, 1000);
+            }
+
+            updateDisplay() {
+                this.displayHealthStatus();
+                this.displayOrderbookStatus();
+                this.displaySummary();
+            }
+
+            displayHealthStatus() {
+                const container = document.getElementById('healthContent');
+                
+                if (this.healthData.size === 0) {
+                    container.innerHTML = '<div class="no-data">⚠️ No health data received yet...</div>';
+                    return;
+                }
+
+                const now = new Date();
+                const sortedNodes = Array.from(this.healthData.entries()).sort(([nodeIdA], [nodeIdB]) => {
+                    if (nodeIdA.includes('127.124')) return -1;
+                    if (nodeIdB.includes('127.124')) return 1;
+                    return nodeIdA.localeCompare(nodeIdB);
+                });
+
+                let html = '';
+                for (const [nodeId, health] of sortedNodes) {
+                    const age = Math.round((now - health.lastUpdate) / 1000);
+                    const isHealthy = age < 60 && health.isHealthy;
+                    const nodeType = nodeId.includes('127.124') ? 'master' : 'worker';
+                    
+                    html += `
+                        <div class="node-card ${nodeType}">
+                            <div class="node-header">
+                                <div class="node-id">🖥️ ${nodeId}</div>
+                                <div class="node-type ${nodeType}">${nodeType.toUpperCase()}</div>
+                            </div>
+                            <div class="health-status">
+                                <div class="health-indicator ${isHealthy ? 'healthy' : 'unhealthy'}"></div>
+                                <span>${isHealthy ? '🟢 HEALTHY' : '🔴 UNHEALTHY'} (${age}s ago)</span>
+                            </div>
+                            <div class="metrics-grid">
+                                <div class="metric">
+                                    <div class="metric-label">CPU Usage</div>
+                                    <div class="metric-value">${(health.cpuUsage || 0).toFixed(1)}%</div>
+                                </div>
+                                <div class="metric">
+                                    <div class="metric-label">Memory Usage</div>
+                                    <div class="metric-value">${(health.memoryUsage || 0).toFixed(1)}%</div>
+                                </div>
+                                <div class="metric">
+                                    <div class="metric-label">Active Markets</div>
+                                    <div class="metric-value">${health.activeMarkets || 0}</div>
+                                </div>
+                                <div class="metric">
+                                    <div class="metric-label">CPU Cores</div>
+                                    <div class="metric-value">${health.cpuCores || 'N/A'}</div>
+                                </div>
+                                <div class="metric">
+                                    <div class="metric-label">Load Average</div>
+                                    <div class="metric-value">${(health.loadAverage || 0).toFixed(2)}</div>
+                                </div>
+                                <div class="metric">
+                                    <div class="metric-label">Free Disk (MB)</div>
+                                    <div class="metric-value">${(health.freeDiskSpaceMB || 0).toLocaleString()}</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                container.innerHTML = html;
+            }
+
+            displayOrderbookStatus() {
+                const container = document.getElementById('orderbookContent');
+                
+                if (this.orderbooksByNode.size === 0) {
+                    container.innerHTML = '<div class="no-data">⚠️ No orderbook data received yet...</div>';
+                    return;
+                }
+
+                const now = new Date();
+                let html = '';
+
+                for (const [nodeId, nodeOrderbooks] of this.orderbooksByNode) {
+                    const nodeType = nodeId.includes('127.124') ? 'MASTER' : 'WORKER';
+                    const marketCount = nodeOrderbooks.size;
+                    
+                    html += `
+                        <div class="market-card">
+                            <div class="market-header">
+                                <div class="market-id">🖥️ NODE ${nodeId} (${nodeType})</div>
+                                <div class="market-age">${marketCount} markets</div>
+                            </div>
+                    `;
+                    
+                    if (marketCount === 0) {
+                        html += '<div class="no-data">📭 No active markets on this node</div>';
+                    } else {
+                        for (const [eventId, orderbook] of nodeOrderbooks) {
+                            const age = Math.round((now - orderbook.lastUpdate) / 1000);
+                            html += this.renderOrderbook(eventId, orderbook, age);
+                        }
+                    }
+                    
+                    html += '</div>';
+                }
+                
+                container.innerHTML = html;
+            }
+
+            renderOrderbook(eventId, orderbook, age) {
+                const { marketA, marketB } = orderbook;
+                
+                return `
+                    <div style="margin: 20px 0; padding: 20px; background: white; border-radius: 8px; border: 1px solid #dee2e6;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <h4>📈 ${eventId}</h4>
+                            <span style="color: #6c757d;">(${age}s ago)</span>
+                        </div>
+                        <div class="orderbook-container">
+                            ${this.renderMarketOrderbook(marketA)}
+                            ${this.renderMarketOrderbook(marketB)}
+                        </div>
+                    </div>
+                `;
+            }
+
+            renderMarketOrderbook(market) {
+                const { marketId, bids = [], asks = [], bestBid, bestAsk, totalOrders } = market;
+                
+                let html = `
+                    <div class="market-orderbook">
+                        <div class="market-title">
+                            📊 ${marketId.toUpperCase()} (${totalOrders} orders)
+                        </div>
+                        <div class="best-prices">
+                            Best: ${bestBid}¢ bid / ${bestAsk}¢ ask
+                        </div>
+                `;
+                
+                // ASKs
+                html += '<div class="asks"><strong>🔴 ASKS:</strong><div class="price-levels">';
+                if (asks.length > 0) {
+                    const sortedAsks = [...asks].sort((a, b) => b.price - a.price);
+                    for (const ask of sortedAsks) {
+                        html += `<div class="price-level">
+                            <span>${ask.price}¢</span>
+                            <span>${ask.quantity.toLocaleString()} (${ask.count})</span>
+                        </div>`;
+                    }
+                } else {
+                    html += '<div class="no-data" style="padding: 10px;">No ask orders</div>';
+                }
+                html += '</div></div>';
+                
+                // Spread
+                if (bestBid > 0 && bestAsk > 0) {
+                    const spread = bestAsk - bestBid;
+                    const spreadPercent = ((spread / bestBid) * 100).toFixed(1);
+                    html += `<div class="spread">⚡ SPREAD: ${spread}¢ (${spreadPercent}%)</div>`;
+                } else {
+                    html += '<div class="spread">⚡ SPREAD: Market gap</div>';
+                }
+                
+                // BIDs
+                html += '<div class="bids"><strong>🟢 BIDS:</strong><div class="price-levels">';
+                if (bids.length > 0) {
+                    const sortedBids = [...bids].sort((a, b) => b.price - a.price);
+                    for (const bid of sortedBids) {
+                        html += `<div class="price-level">
+                            <span>${bid.price}¢</span>
+                            <span>${bid.quantity.toLocaleString()} (${bid.count})</span>
+                        </div>`;
+                    }
+                } else {
+                    html += '<div class="no-data" style="padding: 10px;">No bid orders</div>';
+                }
+                html += '</div></div>';
+                
+                html += '</div>';
+                return html;
+            }
+
+            displaySummary() {
+                const totalNodes = this.healthData.size;
+                const now = new Date();
+                const healthyNodes = Array.from(this.healthData.values()).filter(h => {
+                    const age = (now - h.lastUpdate) / 1000;
+                    return age < 60 && h.isHealthy;
+                }).length;
+
+                let totalActiveMarkets = 0;
+                for (const nodeOrderbooks of this.orderbooksByNode.values()) {
+                    totalActiveMarkets += nodeOrderbooks.size;
+                }
+
+                document.getElementById('totalNodes').textContent = totalNodes;
+                document.getElementById('healthyNodes').textContent = healthyNodes;
+                document.getElementById('activeMarkets').textContent = totalActiveMarkets;
+                document.getElementById('totalMarkets').textContent = this.totalMarkets || 'N/A';
+            }
+
+            // Demo data for when WebSocket is not available
+            simulateData() {
+                console.log('🎭 Running in demo mode with simulated data');
+                
+                // Simulate health data
+                this.healthData.set('100.70.127.124', {
+                    cpuUsage: 45.2,
+                    memoryUsage: 67.8,
+                    activeMarkets: 12,
+                    cpuCores: 8,
+                    loadAverage: 2.34,
+                    freeDiskSpaceMB: 45000,
+                    isHealthy: true,
+                    lastUpdate: new Date()
+                });
+
+                this.healthData.set('100.70.127.125', {
+                    cpuUsage: 32.1,
+                    memoryUsage: 54.3,
+                    activeMarkets: 8,
+                    cpuCores: 4,
+                    loadAverage: 1.87,
+                    freeDiskSpaceMB: 32000,
+                    isHealthy: true,
+                    lastUpdate: new Date()
+                });
+
+                // Simulate orderbook data
+                const sampleOrderbook = {
+                    eventId: 'SAMPLE_EVENT_001',
+                    nodeId: '100.70.127.124',
+                    marketA: {
+                        marketId: 'YES',
+                        bids: [
+                            { price: 45, quantity: 1000, count: 3 },
+                            { price: 44, quantity: 1500, count: 5 }
+                        ],
+                        asks: [
+                            { price: 47, quantity: 800, count: 2 },
+                            { price: 48, quantity: 1200, count: 4 }
+                        ],
+                        bestBid: 45,
+                        bestAsk: 47,
+                        totalOrders: 14
+                    },
+                    marketB: {
+                        marketId: 'NO',
+                        bids: [
+                            { price: 52, quantity: 900, count: 2 },
+                            { price: 51, quantity: 1100, count: 3 }
+                        ],
+                        asks: [
+                            { price: 54, quantity: 700, count: 2 },
+                            { price: 55, quantity: 1000, count: 3 }
+                        ],
+                        bestBid: 52,
+                        bestAsk: 54,
+                        totalOrders: 10
+                    },
+                    lastUpdate: new Date()
+                };
+
+                this.orderbooksByNode.set('100.70.127.124', new Map([
+                    ['SAMPLE_EVENT_001', sampleOrderbook]
+                ]));
+
+                this.totalMarkets = 25;
+                this.lastUpdateTime = new Date();
+                this.updateConnectionStatus(true);
+                this.updateDisplay();
+
+                // Update demo data periodically
+                setInterval(() => {
+                    this.updateDemoData();
+                }, 5000);
+            }
+
+            updateDemoData() {
+                // Update health metrics with random variations
+                for (const [nodeId, health] of this.healthData) {
+                    health.cpuUsage += (Math.random() - 0.5) * 10;
+                    health.cpuUsage = Math.max(0, Math.min(100, health.cpuUsage));
+                    health.memoryUsage += (Math.random() - 0.5) * 5;
+                    health.memoryUsage = Math.max(0, Math.min(100, health.memoryUsage));
+                    health.lastUpdate = new Date();
+                }
+
+                this.lastUpdateTime = new Date();
+                this.updateDisplay();
+            }
+        }
+
+        // Initialize dashboard when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new MonitoringDashboard();
+        });
+    </script>
+</body>
+</html> 
